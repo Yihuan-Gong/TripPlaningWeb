@@ -1,0 +1,248 @@
+// Theme color for this website
+$themeColor: rgb(40, 40, 40);
+$headerColor: gray;
+$textColor: white;
+$btnColor: rgb(0, 34, 255);
+
+$scheduleMargin: 1rem;
+
+@mixin center-align {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+* {
+  background-color: $themeColor;
+  color: $textColor;
+
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+}
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center; // 垂直對齊
+
+  padding: 30px;
+  background-color: $headerColor;
+
+  section.logo {
+    background-color: $headerColor;
+
+    // flex item
+    flex: 5 1 250px;
+
+    // flex container
+    display: flex;
+    align-items: center;
+
+    img {
+      background-color: $headerColor;
+
+      width: 6vw;
+      height: 6vh;
+    }
+
+    h1 {
+      background-color: $headerColor;
+
+      font-size: 2.5rem;
+    }
+  }
+
+  nav {
+    background-color: $headerColor;
+    flex: 1 1 240px;
+
+    ul {
+      background-color: $headerColor;
+
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: left;
+
+      li {
+        background-color: $headerColor;
+
+        flex-basis: 120px;
+        list-style-type: none;
+
+        a {
+          background-color: $headerColor;
+
+          text-decoration: none;
+          font-size: 1.35rem;
+        }
+      }
+    }
+  }
+}
+
+main {
+  display: flex;
+  flex-wrap: wrap;
+
+  section.plan {
+    flex: 1 1 400px;
+
+    // 新增行程表單
+
+    form {
+      height: 300px;
+      padding: 1rem;
+      margin: 1rem;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+
+      div.departure-date {
+        input {
+          width: 8rem;
+        }
+      }
+
+      div.trip-name {
+        input {
+          width: 8rem;
+        }
+      }
+
+      button {
+        padding: 0.5rem;
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+
+    // 行程表
+    div.schedule {
+      padding: 1rem;
+      margin: 1rem;
+
+      div.day-bar {
+        padding: 0rem;
+        margin: $scheduleMargin;
+        display: flex;
+
+        div {
+          width: 4rem;
+          border: 1px solid white;
+          padding: 0.5rem 0;
+
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+
+          p {
+            text-align: center;
+          }
+
+          &:hover {
+            cursor: pointer;
+          }
+        }
+
+        div.plus-btn,
+        div.save-btn {
+          width: 3rem;
+          p {
+            background-color: $btnColor;
+            font-size: 1rem;
+          }
+
+          background-color: $btnColor;
+        }
+
+        div.plus-btn {
+          p {
+            font-size: 1.5rem;
+          }
+        }
+      }
+
+      div.time-and-tourist-spot {
+        padding: 0.5rem 0rem;
+        border: 1px solid white;
+        margin: $scheduleMargin;
+
+        display: flex;
+        align-items: center;
+
+        img.place {
+          width: 1.5rem;
+          height: 1.5rem;
+
+          margin: 0.5rem 1rem;
+        }
+
+        div.time {
+          width: 8rem;
+          display: flex;
+          align-items: center;
+
+          p {
+            font-size: 1.2rem;
+          }
+        }
+
+        div.tourist-spot {
+          p.spot {
+            font-size: 1.2rem;
+          }
+
+          p.stay-time,
+          p.cost {
+            font-size: 0.8rem;
+          }
+        }
+      }
+
+      div.start-or-end {
+        div.time {
+          p.start-or-end-time {
+            width: 4rem;
+          }
+
+          p.action {
+            width: 3rem;
+          }
+        }
+      }
+
+      div.traveling {
+        div.time {
+          p.start-time,
+          p.end-time {
+            width: 3rem;
+          }
+
+          p.to {
+            width: 1rem;
+            text-align: center;
+          }
+        }
+      }
+    }
+  }
+
+  section.map {
+    flex: 2 1 400px;
+  }
+}
