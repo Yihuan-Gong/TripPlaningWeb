@@ -101,11 +101,19 @@
       </section>
     </main>
 
-    <script
-      async
-      defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9OIa6N5hj333mdU-6ydSKB9jmHAytq-A&callback=initMap&v=weekly"
-    ></script>
+    <!-- Load the map script with API key dynamically -->
+    <script type="module">
+      import MAP_API_KEY from "../app/apiKey.js";
+
+      // Create a script element and set its src attribute dynamically
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${MAP_API_KEY}&callback=initMap&v=weekly`;
+      script.defer = true;
+      script.async = true;
+
+      // Append the script element to the HTML body
+      document.body.appendChild(script);
+    </script>
 
     <script src="../app/app.js"></script>
   </body>
