@@ -1,9 +1,13 @@
 * {
-  background-color: rgb(40, 40, 40);
-  color: white;
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+}
+
+header *,
+section.plan {
+  background-color: rgb(40, 40, 40);
+  color: white;
 }
 
 h1,
@@ -20,40 +24,40 @@ header {
   flex-wrap: wrap;
   align-items: center;
   padding: 30px;
-  background-color: gray;
+  background-color: rgb(71, 71, 71);
 }
 header section.logo {
-  background-color: gray;
+  background-color: rgb(71, 71, 71);
   flex: 5 1 250px;
   display: flex;
   align-items: center;
 }
 header section.logo img {
-  background-color: gray;
+  background-color: rgb(71, 71, 71);
   width: 6vw;
   height: 6vh;
 }
 header section.logo h1 {
-  background-color: gray;
+  background-color: rgb(71, 71, 71);
   font-size: 2.5rem;
 }
 header nav {
-  background-color: gray;
+  background-color: rgb(71, 71, 71);
   flex: 1 1 240px;
 }
 header nav ul {
-  background-color: gray;
+  background-color: rgb(71, 71, 71);
   display: flex;
   flex-wrap: wrap;
   justify-content: left;
 }
 header nav ul li {
-  background-color: gray;
+  background-color: rgb(71, 71, 71);
   flex-basis: 120px;
   list-style-type: none;
 }
 header nav ul li a {
-  background-color: gray;
+  background-color: rgb(71, 71, 71);
   text-decoration: none;
   font-size: 1.35rem;
 }
@@ -165,4 +169,8 @@ main section.plan div.schedule div.traveling div.time p.to {
 }
 main section.map {
   flex: 2 1 400px;
+}
+main section.map #map {
+  height: 100%;
+  width: 100%;
 }/*# sourceMappingURL=style.css.map */

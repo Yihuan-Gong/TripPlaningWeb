@@ -96,9 +96,17 @@
       </section>
 
       <!-- 顯示地圖 -->
-      <section class="map"></section>
-
-      <script src="../app/app.js"></script>
+      <section class="map">
+        <div id="map"></div>
+      </section>
     </main>
+
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9OIa6N5hj333mdU-6ydSKB9jmHAytq-A&callback=initMap&v=weekly"
+    ></script>
+
+    <script src="../app/app.js"></script>
   </body>
 </html>

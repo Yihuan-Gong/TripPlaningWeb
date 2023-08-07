@@ -1,6 +1,6 @@
 // Theme color for this website
 $themeColor: rgb(40, 40, 40);
-$headerColor: gray;
+$headerColor: rgb(71, 71, 71);
 $textColor: white;
 $btnColor: rgb(0, 34, 255);
 
@@ -14,12 +14,16 @@ $scheduleMargin: 1rem;
 }
 
 * {
-  background-color: $themeColor;
-  color: $textColor;
-
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+}
+
+// Set the theme and text color of the website
+header *,
+section.plan {
+  background-color: $themeColor;
+  color: $textColor;
 }
 
 h1,
@@ -244,5 +248,10 @@ main {
 
   section.map {
     flex: 2 1 400px;
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
   }
 }
