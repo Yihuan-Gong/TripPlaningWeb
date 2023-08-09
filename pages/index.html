@@ -97,7 +97,20 @@
 
       <!-- 顯示地圖 -->
       <section class="map">
+        <!-- Search box -->
+        <input
+          id="pac-input"
+          class="controls"
+          type="text"
+          placeholder="Search Box"
+        />
         <div id="map"></div>
+        <!-- Place detail and add button -->
+        <div id="infowindow-content">
+          <span id="place-name" class="title"></span><br />
+          <span id="place-address"></span> <br />
+          <div class="add-place"></div>
+        </div>
       </section>
     </main>
 
@@ -107,7 +120,7 @@
 
       // Create a script element and set its src attribute dynamically
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${MAP_API_KEY}&callback=initMap&v=weekly`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${MAP_API_KEY}&callback=initMap&libraries=places&v=weekly`;
       script.defer = true;
       script.async = true;
 

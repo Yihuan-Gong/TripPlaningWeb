@@ -22,6 +22,20 @@ function initMap() {
     disableDefaultUI: true,
   });
 
+  // 初始化search box
+  const input = document.getElementById("pac-input");
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+  // 初始化autocomplete: 自動填入和搜尋功能
+  const autocomplete = new google.maps.places.Autocomplete(input, {
+    fields: ["formatted_address", "geometry", "name"], // place detail basic ($17/1000 request)
+    strictBounds: false, // 可搜尋地圖視窗顯示外的地點
+    types: ["establishment"],
+  });
+
+  // 搜尋景點
+  searchPlace();
+
   // 給定景點
   let pos1 = { lat: 25.046, lng: 121.517 }; // 台北車站
   let pos2 = { lat: 25.033, lng: 121.564 }; // 台北101
@@ -57,6 +71,57 @@ function initMap() {
   // 計算路徑
   calculateAndDisplayRoute(pos1, pos2, "#FF0000");
   calculateAndDisplayRoute(pos2, pos3, "#0000FF");
+
+  function searchPlace() {
+    /*
+     * searchPlace()的程式碼來自於 Google LLC 的部分原始碼，根據 Apache-2.0 授權
+     * Copyright 2019 Google LLC. All Rights Reserved.
+     * SPDX-License-Identifier: Apache-2.0
+     */
+
+    const infowindow = new google.maps.InfoWindow();
+    const infowindowContent = document.getElementById("infowindow-content");
+
+    infowindow.setContent(infowindowContent);
+
+    const marker = new google.maps.Marker({
+      map,
+      anchorPoint: new google.maps.Point(0, -29),
+    });
+
+    autocomplete.addListener("place_changed", () => {
+      infowindow.close();
+      marker.setVisible(false);
+
+      const place = autocomplete.getPlace();
+
+      if (!place.geometry || !place.geometry.location) {
+        // User entered the name of a Place that was not suggested and
+        // pressed the Enter key, or the Place Details request failed.
+        window.alert("No details available for input: '" + place.name + "'");
+        return;
+      }
+
+      // If the place has a geometry, then present it on a map.
+      if (place.geometry.viewport) {
+        map.fitBounds(place.geometry.viewport);
+      } else {
+        map.setCenter(place.geometry.location);
+        map.setZoom(17);
+      }
+
+      marker.setPosition(place.geometry.location);
+      marker.setVisible(true);
+      infowindowContent.children["place-name"].textContent = place.name;
+      infowindowContent.children["place-address"].textContent =
+        place.formatted_address;
+      infowindow.open(map, marker);
+    });
+  }
+
+  // function addPlace() {
+  //   let addPlaceBtn = document.querySelector("add-place");
+  // }
 
   function calculateAndDisplayRoute(start, end, color) {
     directionsService
