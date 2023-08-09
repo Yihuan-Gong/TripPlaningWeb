@@ -13,6 +13,12 @@ $scheduleMargin: 1rem;
   transform: translate(-50%, -50%);
 }
 
+@mixin btn {
+  &:hover {
+    cursor: pointer;
+  }
+}
+
 * {
   padding: 0;
   margin: 0;
@@ -249,9 +255,36 @@ main {
   section.map {
     flex: 2 1 400px;
 
+    #pac-input {
+      width: 30%;
+      font-size: 1.2rem;
+    }
+
     #map {
       height: 100%;
       width: 100%;
+    }
+
+    #infowindow-content {
+      #place-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .add-place {
+        display: flex;
+
+        #add-place {
+          justify-content: center;
+          margin: 0.6rem 0;
+          padding: 0.3rem;
+          background-color: $btnColor;
+          color: $textColor;
+          font-size: 1.2rem;
+
+          @include btn();
+        }
+      }
     }
   }
 }

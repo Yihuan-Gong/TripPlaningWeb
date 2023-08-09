@@ -119,9 +119,9 @@ function initMap() {
     });
   }
 
-  // function addPlace() {
-  //   let addPlaceBtn = document.querySelector("add-place");
-  // }
+  function addPlace() {
+    let addPlaceBtn = document.querySelector("add-place");
+  }
 
   function calculateAndDisplayRoute(start, end, color) {
     directionsService
