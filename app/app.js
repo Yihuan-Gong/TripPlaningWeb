@@ -1,8 +1,8 @@
 function addNewPlan() {
   let initFrom = document.querySelector("form");
 
-  initFrom.addEventListener("submit", (e) => {
-    e.preventDefault();
+  initFrom.addEventListener("submit", (event) => {
+    event.preventDefault();
 
     let departDate = initFrom.querySelector("#departure-date").value; //string
     let tripName = initFrom.querySelector("#trip-name").value; //string
@@ -33,52 +33,27 @@ function initMap() {
     types: ["establishment"],
   });
 
-  // 搜尋景點
-  searchPlace();
-
-  // 給定景點
-  let pos1 = { lat: 25.046, lng: 121.517 }; // 台北車站
-  let pos2 = { lat: 25.033, lng: 121.564 }; // 台北101
-  let pos3 = { lat: 25.033, lng: 121.57 }; // 象山捷運站
-
-  // 依序標示景點
-  let marker1 = new google.maps.Marker({
-    position: pos1,
-    map: map,
-    label: "1",
-    icon: "http://maps.google.com/mapfiles/ms/icons/red.png", // 紅色標記
-  });
-  let marker2 = new google.maps.Marker({
-    position: pos2,
-    map: map,
-    label: "2",
-    color: "#0000FF",
-    icon: "http://maps.google.com/mapfiles/ms/icons/blue.png", // 藍色標記
-  });
-  let marker3 = new google.maps.Marker({
-    position: pos3,
-    map: map,
-    label: "3",
-    icon: "http://maps.google.com/mapfiles/ms/icons/green.png", // 綠色標記
-  });
-
-  // 創建方向服務物件和路徑顯示圖層
-  // const directionsRenderer = new google.maps.DirectionsRenderer();
+  // 初始化方向服務物件
   const directionsService = new google.maps.DirectionsService();
-  // directionsRenderer.setMap(map); // 將路徑畫在地圖上
-  // directionsRenderer.setPanel(document.getElementById("sidebar"));    // 逐行顯示經過道路
 
-  // 計算路徑
-  calculateAndDisplayRoute(pos1, pos2, "#FF0000");
-  calculateAndDisplayRoute(pos2, pos3, "#0000FF");
+  // 初始化裝入所有行程景點的容器
+  let places = [];
 
-  function searchPlace() {
+  // 主程式：搜尋景點與加入景點功能
+  searchAndAddPlace();
+
+  // // 計算路徑
+  // calculateAndDisplayRoute(pos1, pos2, "#FF0000");
+  // calculateAndDisplayRoute(pos2, pos3, "#0000FF");
+
+  function searchAndAddPlace() {
     /*
-     * searchPlace()的程式碼來自於 Google LLC 的部分原始碼，根據 Apache-2.0 授權
+     * searchPlace()的部分程式碼來自於 Google LLC 的部分原始碼，根據 Apache-2.0 授權
      * Copyright 2019 Google LLC. All Rights Reserved.
      * SPDX-License-Identifier: Apache-2.0
      */
 
+    let newSpotPos;
     const infowindow = new google.maps.InfoWindow();
     const infowindowContent = document.getElementById("infowindow-content");
 
@@ -90,7 +65,12 @@ function initMap() {
     });
 
     autocomplete.addListener("place_changed", () => {
+      // Reset infowindow
+      infowindowContent.querySelector("#add-place").style.display = "block";
+      infowindowContent.querySelector("#added").style.display = "none";
       infowindow.close();
+
+      // Reset search marker
       marker.setVisible(false);
 
       const place = autocomplete.getPlace();
@@ -116,11 +96,43 @@ function initMap() {
       infowindowContent.children["place-address"].textContent =
         place.formatted_address;
       infowindow.open(map, marker);
-    });
-  }
 
-  function addPlace() {
-    let addPlaceBtn = document.querySelector("add-place");
+      newSpotPos = place.geometry.location;
+    });
+
+    // *******
+    // 重要：按下加入行程之後的四個動作
+    // 1. "加入行程"按鈕 -> "已加入"
+    // 2. 標示新加入的景點
+    // 3. 顯示上一個景點到新加入景點的路線
+    // 4. 在schedule生成新景點的板塊
+    // *******
+    let addPlaceBtn = document.querySelector("#add-place");
+    let added = document.querySelector("#added");
+    addPlaceBtn.addEventListener("click", (event) => {
+      // Notify: Change the 加入行程 button to 已加入
+      addPlaceBtn.style.display = "none";
+      added.style.display = "block";
+
+      // Add new tour spot
+      places.push(newSpotPos);
+      console.log(places);
+
+      // Mark the added new spot
+      let newSpotMarker = new google.maps.Marker({
+        map: map,
+        label: places.length.toString(),
+        icon: "http://maps.google.com/mapfiles/ms/icons/red.png", // 紅色標記
+      });
+      newSpotMarker.setPosition(newSpotPos);
+
+      // Calculate and display the route from prev spot to the new added spot
+      if (places.length >= 2) {
+        start = places[places.length - 1];
+        end = places[places.length - 2];
+        calculateAndDisplayRoute(start, end, "#FF0000");
+      }
+    });
   }
 
   function calculateAndDisplayRoute(start, end, color) {
@@ -131,9 +143,6 @@ function initMap() {
         travelMode: google.maps.TravelMode["DRIVING"],
       })
       .then((response) => {
-        // 將地圖自動調整到剛好把route放進去的大小
-        // directionsRenderer.setDirections(response);
-
         // 將route從response裡面讀出來
         let route = response.routes[0].overview_path;
 
