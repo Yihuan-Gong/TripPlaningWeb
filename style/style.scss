@@ -42,6 +42,8 @@ h6 {
 }
 
 header {
+  height: 12vh;
+
   display: flex;
   flex-wrap: wrap;
   align-items: center; // 垂直對齊
@@ -104,6 +106,7 @@ header {
 main {
   display: flex;
   flex-wrap: wrap;
+  height: 88vh;
 
   section.plan {
     flex: 1 1 400px;

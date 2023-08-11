@@ -47,9 +47,9 @@
         <div class="schedule">
           <!-- 上方日期選單 -->
           <div class="day-bar">
-            <div class="day">
-              <p>1/25</p>
-              <p>Day1</p>
+            <div class="day day1">
+              <p id="date">1/25</p>
+              <p id="day-num">Day1</p>
             </div>
 
             <div class="plus-btn">
@@ -63,7 +63,7 @@
 
           <!-- 下方每日行程表 -->
           <div class="daily-schedule">
-            <div class="time-and-tourist-spot start-or-end">
+            <!-- <div class="time-and-tourist-spot start-or-end">
               <img class="place" src="../icon/place2.png" alt="place-marker" />
 
               <div class="time">
@@ -90,7 +90,7 @@
                 <p class="stay-time">停留4hr</p>
                 <p class="cost">花費1500</p>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </section>
@@ -109,11 +109,32 @@
         <div id="infowindow-content">
           <div id="place-name" class="title"></div>
           <div id="place-address"></div>
+          <!-- 加入行程/已加入，default不顯示 -->
           <div class="add-place">
-            <p id="add-place">加入行程</p>
-            <!-- 已加入原本不顯示，直到使用者按下加入行程才會顯示 -->
+            <p id="add-place" style="display: none">加入行程</p>
             <p id="added" style="display: none">已加入</p>
           </div>
+          <!-- 新增行程表單，default不顯示 -->
+          <form class="add-place-form" action="">
+            <div class="fill-in-start-time" style="display: none">
+              <label for="start-time">出發時間：</label>
+              <input id="start-time" type="time" timeformat="24h" />
+            </div>
+            <div class="fill-in-duration" style="display: none">
+              <p>停留時間：</p>
+              <input id="duration-hr" type="number" min="0" max="23" step="1" />
+              <label for="duration-hr">小時</label>
+              <input
+                id="duration-min"
+                type="number"
+                min="0"
+                max="59"
+                step="1"
+              />
+              <label for="duration-min">分鐘 </label>
+            </div>
+            <button class="conform-add" style="display: none">確認新增</button>
+          </form>
         </div>
       </section>
     </main>

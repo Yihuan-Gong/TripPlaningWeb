@@ -20,6 +20,7 @@ h6 {
 }
 
 header {
+  height: 12vh;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -65,6 +66,7 @@ header nav ul li a {
 main {
   display: flex;
   flex-wrap: wrap;
+  height: 88vh;
 }
 main section.plan {
   flex: 1 1 400px;
