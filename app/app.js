@@ -1,4 +1,7 @@
+import { TourSpot, DailySchedule } from "./linkedList.js";
+
 addNewPlan();
+window.initMap = initMap;
 
 function addNewPlan() {
   let initFrom = document.querySelector(".init-form");
@@ -25,7 +28,7 @@ function addNewPlan() {
 
 function addSchedule(newSpot) {
   // TourSpot newSpot
-  let dailySchedule = document.querySelector("div.daily-schedule");
+  let dailyScheduleIndication = document.querySelector("div.daily-schedule");
   let timeAndSpot = document.createElement("div");
   timeAndSpot.classList.add("time-and-tourist-spot");
   timeAndSpot.classList.add(`id-${newSpot.id}`);
@@ -57,27 +60,7 @@ function addSchedule(newSpot) {
     </div>`;
   }
 
-  dailySchedule.appendChild(timeAndSpot);
-}
-
-class TourSpot {
-  name;
-  pos;
-  startTime;
-  endTime;
-  duration;
-  cost;
-  id;
-
-  constructor(name, pos, id) {
-    this.name = name;
-    this.pos = pos;
-    this.id = id;
-  }
-
-  calculateEndTime() {
-    this.endTime = this.startTime + this.duration;
-  }
+  dailyScheduleIndication.appendChild(timeAndSpot);
 }
 
 function initMap() {
@@ -99,22 +82,13 @@ function initMap() {
     types: ["establishment"],
   });
 
-  // 初始化方向服務物件
-  const directionsService = new google.maps.DirectionsService();
-
   // 初始化裝入所有行程景點的容器
-  let places = [];
+  let dailySchedule = new DailySchedule();
 
   // 主程式：搜尋景點與加入景點功能
   searchAndAddPlace();
 
   function searchAndAddPlace() {
-    /*
-     * searchPlace()的部分程式碼來自於 Google LLC 的部分原始碼，根據 Apache-2.0 授權
-     * Copyright 2019 Google LLC. All Rights Reserved.
-     * SPDX-License-Identifier: Apache-2.0
-     */
-
     // INITIALIZATION
     let infowindowContent = document.querySelector("#infowindow-content");
     const infowindow = new google.maps.InfoWindow();
@@ -126,6 +100,12 @@ function initMap() {
     });
 
     // SEARCH PHASE
+    /*
+     * SEARCH PHASE的部分程式碼來自於 Google LLC 的部分原始碼，根據 Apache-2.0 授權
+     * Copyright 2019 Google LLC. All Rights Reserved.
+     * SPDX-License-Identifier: Apache-2.0
+     */
+
     let spotPos, spotName;
     autocomplete.addListener("place_changed", () => {
       // Reset infowindow
@@ -177,7 +157,7 @@ function initMap() {
       addPlaceBtn.style.display = "none";
 
       // Determine if it is the first spot
-      let first = places.length == 0;
+      let first = dailySchedule.length == 0;
 
       // Open the add place form
       conformAddBtn.style.display = "block";
@@ -196,38 +176,27 @@ function initMap() {
     // 3. 顯示上一個景點到新加入景點的路線
     // 4. 在schedule生成新景點的板塊
     // *******
-    addPlaceForm.addEventListener("submit", (event) => {
+    addPlaceForm.addEventListener("submit", async function (event) {
       event.preventDefault();
 
-      // Creat a new tour spot object
-      let newSpot = new TourSpot(spotName, spotPos, places.length + 1);
+      // Add a new spot and display it
+      dailySchedule.append(spotName, spotPos);
+      dailySchedule.tail.newMark(map);
 
-      // Push that new object to array
-      places.push(newSpot);
-      console.log(places);
+      if (dailySchedule.length >= 2) {
+        let prev = dailySchedule.tail.prev;
 
-      // Mark the added new spot
-      let newSpotMarker = new google.maps.Marker({
-        map: map,
-        label: places.length.toString(),
-        icon: "http://maps.google.com/mapfiles/ms/icons/red.png", // 紅色標記
-      });
-      newSpotMarker.setPosition(newSpot.pos);
+        // Calculate the route
+        await prev.calRouteAndTrafficTime();
 
-      if (places.length >= 2) {
-        // Calculate and display the route from prev spot to the new added spot
-        current = places[places.length - 1];
-        prev = places[places.length - 2];
-        calculateAndDisplayRoute(prev.pos, current.pos, "#FF0000");
-
-        // Assign start time of new spot from the end time of previous spot
-        newSpot.startTime = prev.endTime;
+        // Display the route
+        prev.displayRoute(map);
       }
 
       // Generate the time schedule on the left
-      let first = places.length == 1;
-      getTimeInfo(newSpot, addPlaceForm, first);
-      addSchedule(newSpot, first);
+      let first = dailySchedule.length == 1;
+      getTimeInfo(dailySchedule.tail, addPlaceForm, first);
+      addSchedule(dailySchedule.tail, first);
 
       // Close the add place form
       conformAddBtn.style.display = "none";
@@ -247,7 +216,12 @@ function initMap() {
       newSpot.startTime = startTime;
       newSpot.endTime = startTime;
       newSpot.duration = "0小時0分鐘";
+
+      console.log(newSpot.startTime);
     } else {
+      // Calculate the start time
+      newSpot.getStartTime();
+
       //  Read the start time
       let startTime = newSpot.startTime;
 
@@ -279,31 +253,5 @@ function initMap() {
       newSpot.endTime = endTime;
       newSpot.duration = `${durationHr.value}小時${durationMin.value}分鐘`;
     }
-  }
-
-  function calculateAndDisplayRoute(start, end, color) {
-    directionsService
-      .route({
-        origin: start,
-        destination: end,
-        travelMode: google.maps.TravelMode["DRIVING"],
-      })
-      .then((response) => {
-        // 將route從response裡面讀出來
-        let route = response.routes[0].overview_path;
-
-        // 根據讀取的route，產生一個新的路徑圖
-        let polyline = new google.maps.Polyline({
-          path: route,
-          geodesic: true,
-          strokeColor: color,
-          strokeOpacity: 0.8,
-          strokeWeight: 4,
-        });
-
-        // 將剛剛產生的路徑圖加到地圖上
-        polyline.setMap(map);
-      })
-      .catch((e) => window.alert("Directions request failed"));
   }
 }
