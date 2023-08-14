@@ -257,10 +257,42 @@ main {
 
   section.map {
     flex: 2 1 400px;
+    position: relative;
 
-    #pac-input {
-      width: 30%;
-      font-size: 1.2rem;
+    #cover {
+      height: 100%;
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.8);
+
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 5;
+
+      p {
+        font-size: 2rem;
+        text-align: center;
+        @include center-align();
+      }
+    }
+
+    #search-box {
+      width: max(400px, 30%);
+
+      #title {
+        background-color: $btnColor;
+        color: $textColor;
+        font-size: 1.5rem;
+        width: 100%;
+        padding: 0.5rem;
+      }
+
+      #pac-input {
+        font-size: 1.2rem;
+        width: 100%;
+        // margin: 0.5rem;
+        // padding: 0 0.5rem;
+      }
     }
 
     #map {

@@ -7,6 +7,7 @@ window.initMap = initMap;
 function addNewPlan() {
   let initFrom = document.querySelector(".init-form");
   let schedule = document.querySelector(".schedule");
+  let cover = document.querySelector("#cover");
 
   // Before user fill in the init form, daily schedule is hidden
   schedule.style.display = "none";
@@ -24,6 +25,9 @@ function addNewPlan() {
     // Mark the date on day bar according to init form
     let day1Btn = document.querySelector(".day1");
     day1Btn.children["date"].textContent = departDate.slice(-5);
+
+    // Enable the user to add new schedule by searching
+    cover.style.display = "none";
   });
 }
 
@@ -42,8 +46,9 @@ function initMap() {
   });
 
   // 初始化search box
+  const searchBox = document.querySelector("#search-box");
   const input = document.getElementById("pac-input");
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchBox);
 
   // 初始化autocomplete: 自動填入和搜尋功能
   const autocomplete = new google.maps.places.Autocomplete(input, {

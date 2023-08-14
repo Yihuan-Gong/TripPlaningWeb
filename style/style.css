@@ -171,10 +171,38 @@ main section.plan div.schedule div.traveling div.time p.to {
 }
 main section.map {
   flex: 2 1 400px;
+  position: relative;
 }
-main section.map #pac-input {
-  width: 30%;
+main section.map #cover {
+  height: 100%;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+}
+main section.map #cover p {
+  font-size: 2rem;
+  text-align: center;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+main section.map #search-box {
+  width: max(400px, 30%);
+}
+main section.map #search-box #title {
+  background-color: rgb(0, 34, 255);
+  color: white;
+  font-size: 1.5rem;
+  width: 100%;
+  padding: 0.5rem;
+}
+main section.map #search-box #pac-input {
   font-size: 1.2rem;
+  width: 100%;
 }
 main section.map #map {
   height: 100%;

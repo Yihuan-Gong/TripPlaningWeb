@@ -40,7 +40,7 @@
             <input id="trip-name" type="text" name="trip-name" />
           </div>
 
-          <button>新增行程</button>
+          <button>創建旅程</button>
         </form>
 
         <!-- 行程表 -->
@@ -97,14 +97,22 @@
 
       <!-- 顯示地圖 -->
       <section class="map">
-        <!-- Search box -->
-        <input
-          id="pac-input"
-          class="controls"
-          type="text"
-          placeholder="Search Box"
-        />
+        <div id="cover">
+          <p>請先從左側創建旅程</p>
+        </div>
+
+        <div id="search-box">
+          <div id="title">新增行程</div>
+          <input
+            id="pac-input"
+            class="controls"
+            type="text"
+            placeholder="請在此輸入地點"
+          />
+        </div>
+
         <div id="map"></div>
+
         <!-- Place detail and add button -->
         <div id="infowindow-content">
           <div id="place-name" class="title"></div>
@@ -147,7 +155,7 @@
       const script = document.createElement("script");
       script.src = `https://maps.googleapis.com/maps/api/js?key=${MAP_API_KEY}&callback=initMap&libraries=places&v=weekly`;
       script.defer = true;
-      script.async = true;
+      // script.async = true;
 
       // Append the script element to the HTML body
       document.body.appendChild(script);
