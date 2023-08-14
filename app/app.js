@@ -1,4 +1,5 @@
-import { TourSpot, DailySchedule } from "./linkedList.js";
+import TourSpot from "./TourSpot.js";
+import DailySchedule from "./DailySchedule.js";
 
 addNewPlan();
 window.initMap = initMap;
@@ -24,43 +25,6 @@ function addNewPlan() {
     let day1Btn = document.querySelector(".day1");
     day1Btn.children["date"].textContent = departDate.slice(-5);
   });
-}
-
-function addSchedule(newSpot) {
-  // TourSpot newSpot
-  let dailyScheduleIndication = document.querySelector("div.daily-schedule");
-  let timeAndSpot = document.createElement("div");
-  timeAndSpot.classList.add("time-and-tourist-spot");
-  timeAndSpot.classList.add(`id-${newSpot.id}`);
-
-  if (newSpot.id == 1) {
-    timeAndSpot.classList.add("start-or-end");
-    timeAndSpot.innerHTML = `<img class="place" src="../icon/place2.png" alt="place-marker" />
-    <div class="time">
-      <p class="start-or-end-time">${newSpot.startTime}</p>
-      <p class="action">出發</p>
-    </div>
-
-    <div class="tourist-spot">
-      <p class="spot">${newSpot.name}</p>
-    </div>`;
-  } else {
-    timeAndSpot.classList.add("traveling");
-    timeAndSpot.innerHTML = `<img class="place" src="../icon/place2.png" alt="place-marker" />
-    <div class="time">
-      <p class="start-time">${newSpot.startTime}</p>
-      <p class="to">-</p>
-      <p class="end-time">${newSpot.endTime}</p>
-    </div>
-
-    <div class="tourist-spot">
-      <p class="spot">${newSpot.name}</p>
-      <p class="stay-time">停留${newSpot.duration}</p>
-      <p class="cost">花費0</p>
-    </div>`;
-  }
-
-  dailyScheduleIndication.appendChild(timeAndSpot);
 }
 
 function initMap() {
@@ -179,24 +143,25 @@ function initMap() {
     addPlaceForm.addEventListener("submit", async function (event) {
       event.preventDefault();
 
-      // Add a new spot and display it
+      // Add a new spot
       dailySchedule.append(spotName, spotPos);
+
+      // Disaplay the newly add spot
       dailySchedule.tail.newMark(map);
 
       if (dailySchedule.length >= 2) {
-        let prev = dailySchedule.tail.prev;
-
         // Calculate the route
-        await prev.calRouteAndTrafficTime();
+        await dailySchedule.tail.prev.calRouteAndTrafficTime();
 
         // Display the route
-        prev.displayRoute(map);
+        dailySchedule.tail.prev.displayRoute(map);
       }
 
       // Generate the time schedule on the left
-      let first = dailySchedule.length == 1;
-      getTimeInfo(dailySchedule.tail, addPlaceForm, first);
-      addSchedule(dailySchedule.tail, first);
+      dailySchedule.tail.updateStartTime(addPlaceForm);
+      dailySchedule.tail.updateDuration(addPlaceForm);
+      dailySchedule.tail.updateEndTime(addPlaceForm);
+      dailySchedule.tail.addSchedulePlate();
 
       // Close the add place form
       conformAddBtn.style.display = "none";
@@ -206,52 +171,5 @@ function initMap() {
       // Finished
       added.style.display = "block"; // 已加入
     });
-  }
-
-  function getTimeInfo(newSpot, addPlaceForm, first) {
-    // Determine the end time
-    if (first) {
-      // Read the start time
-      let startTime = addPlaceForm.querySelector("#start-time").value;
-      newSpot.startTime = startTime;
-      newSpot.endTime = startTime;
-      newSpot.duration = "0小時0分鐘";
-
-      console.log(newSpot.startTime);
-    } else {
-      // Calculate the start time
-      newSpot.getStartTime();
-
-      //  Read the start time
-      let startTime = newSpot.startTime;
-
-      // Read the duration
-      let durationHr = addPlaceForm.querySelector("#duration-hr");
-      let durationMin = addPlaceForm.querySelector("#duration-min");
-
-      // Transform startTime into Date object
-      let startDateTime = new Date();
-      let [hours, minutes] = startTime.split(":");
-      startDateTime.setHours(parseInt(hours));
-      startDateTime.setMinutes(parseInt(minutes));
-
-      // Calculate endDateTime: Date object
-      let endDateTime = new Date(
-        startDateTime.getTime() +
-          durationHr.value * 3600000 +
-          durationMin.value * 60000
-      );
-
-      // Convert Date object to endTime
-      let endTimeHr = endDateTime.getHours();
-      let endTimeMin = endDateTime.getMinutes();
-      let endTime = `${endTimeHr.toString().padStart(2, "0")}:${endTimeMin
-        .toString()
-        .padStart(2, "0")}`;
-
-      // Write the endTime to new spot
-      newSpot.endTime = endTime;
-      newSpot.duration = `${durationHr.value}小時${durationMin.value}分鐘`;
-    }
   }
 }
