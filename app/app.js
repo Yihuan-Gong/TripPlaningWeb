@@ -28,10 +28,16 @@ function addNewPlan() {
 }
 
 function initMap() {
+  // *********************
+  // INITIALIZATION PHASE
+  // *********************
+  const MAP_CENTER = { lat: 25.046, lng: 121.517 };
+  const DEFAULT_ZOOM = 13;
+
   // 初始化地圖
   const map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 13,
-    center: { lat: 25.046, lng: 121.517 },
+    zoom: DEFAULT_ZOOM,
+    center: MAP_CENTER,
     disableDefaultUI: true,
   });
 
@@ -41,135 +47,131 @@ function initMap() {
 
   // 初始化autocomplete: 自動填入和搜尋功能
   const autocomplete = new google.maps.places.Autocomplete(input, {
-    fields: ["formatted_address", "geometry", "name"], // place detail basic ($17/1000 request)
-    strictBounds: false, // 可搜尋地圖視窗顯示外的地點
+    // place detail basic ($17/1000 request)
+    fields: ["formatted_address", "geometry", "name"],
+
+    // strictBounds:
+    // False:可搜尋地圖視窗顯示外的地點
+    // True: 不可搜尋
+    strictBounds: false,
+
     types: ["establishment"],
   });
 
   // 初始化裝入所有行程景點的容器
   let dailySchedule = new DailySchedule();
 
-  // 主程式：搜尋景點與加入景點功能
-  searchAndAddPlace();
+  /*************************************************
+   * SEARCH PHASE
 
-  function searchAndAddPlace() {
-    // INITIALIZATION
-    let infowindowContent = document.querySelector("#infowindow-content");
-    const infowindow = new google.maps.InfoWindow();
-    infowindow.setContent(infowindowContent);
+   * SEARCH PHASE的部分程式碼來自於 Google LLC 的部分原始碼，根據 Apache-2.0 授權
+   * Copyright 2019 Google LLC. All Rights Reserved.
+   * SPDX-License-Identifier: Apache-2.0
+   * ****************************************************/
+  let infowindowContent = document.querySelector("#infowindow-content");
+  const infowindow = new google.maps.InfoWindow();
+  infowindow.setContent(infowindowContent);
+  const marker = new google.maps.Marker({
+    map,
+    anchorPoint: new google.maps.Point(0, -29),
+  });
+  let spotPos, spotName;
 
-    const marker = new google.maps.Marker({
-      map,
-      anchorPoint: new google.maps.Point(0, -29),
-    });
+  autocomplete.addListener("place_changed", () => {
+    // Reset infowindow
+    infowindowContent.querySelector("#add-place").style.display = "none";
+    infowindowContent.querySelector("#added").style.display = "none";
+    infowindow.close();
 
-    // SEARCH PHASE
-    /*
-     * SEARCH PHASE的部分程式碼來自於 Google LLC 的部分原始碼，根據 Apache-2.0 授權
-     * Copyright 2019 Google LLC. All Rights Reserved.
-     * SPDX-License-Identifier: Apache-2.0
-     */
+    // Reset search marker
+    marker.setVisible(false);
 
-    let spotPos, spotName;
-    autocomplete.addListener("place_changed", () => {
-      // Reset infowindow
-      infowindowContent.querySelector("#add-place").style.display = "none";
-      infowindowContent.querySelector("#added").style.display = "none";
-      infowindow.close();
+    const place = autocomplete.getPlace();
 
-      // Reset search marker
-      marker.setVisible(false);
+    if (!place.geometry || !place.geometry.location) {
+      // User entered the name of a Place that was not suggested and
+      // pressed the Enter key, or the Place Details request failed.
+      window.alert("No details available for input: '" + place.name + "'");
+      return;
+    }
 
-      const place = autocomplete.getPlace();
+    // If the place has a geometry, then present it on a map.
+    if (place.geometry.viewport) {
+      map.fitBounds(place.geometry.viewport);
+    } else {
+      map.setCenter(place.geometry.location);
+      map.setZoom(17);
+    }
 
-      if (!place.geometry || !place.geometry.location) {
-        // User entered the name of a Place that was not suggested and
-        // pressed the Enter key, or the Place Details request failed.
-        window.alert("No details available for input: '" + place.name + "'");
-        return;
-      }
+    marker.setPosition(place.geometry.location);
+    marker.setVisible(true);
+    infowindowContent.querySelector("#add-place").style.display = "block";
+    infowindowContent.children["place-name"].textContent = place.name;
+    infowindowContent.children["place-address"].textContent =
+      place.formatted_address;
+    infowindow.open(map, marker);
 
-      // If the place has a geometry, then present it on a map.
-      if (place.geometry.viewport) {
-        map.fitBounds(place.geometry.viewport);
-      } else {
-        map.setCenter(place.geometry.location);
-        map.setZoom(17);
-      }
+    spotPos = place.geometry.location;
+    spotName = place.name;
+  });
 
-      marker.setPosition(place.geometry.location);
-      marker.setVisible(true);
-      infowindowContent.querySelector("#add-place").style.display = "block";
-      infowindowContent.children["place-name"].textContent = place.name;
-      infowindowContent.children["place-address"].textContent =
-        place.formatted_address;
-      infowindow.open(map, marker);
+  // *****************
+  // INFO WINDOW PHASE
+  // *****************
+  let addPlaceBtn = infowindowContent.querySelector("#add-place");
+  let added = infowindowContent.querySelector("#added");
+  let addPlaceForm = document.querySelector(".add-place-form");
+  let conformAddBtn = addPlaceForm.querySelector(".conform-add");
+  let fillInStartTime = addPlaceForm.querySelector(".fill-in-start-time");
+  let fillInDuration = addPlaceForm.querySelector(".fill-in-duration");
 
-      spotPos = place.geometry.location;
-      spotName = place.name;
-    });
+  addPlaceBtn.addEventListener("click", (event) => {
+    addPlaceBtn.style.display = "none";
 
-    // INFO WINDOW PHASE
-    let addPlaceBtn = infowindowContent.querySelector("#add-place");
-    let added = infowindowContent.querySelector("#added");
-    let addPlaceForm = document.querySelector(".add-place-form");
-    let conformAddBtn = addPlaceForm.querySelector(".conform-add");
-    let fillInStartTime = addPlaceForm.querySelector(".fill-in-start-time");
-    let fillInDuration = addPlaceForm.querySelector(".fill-in-duration");
+    // Determine if it is the first spot
+    let first = dailySchedule.length == 0;
 
-    addPlaceBtn.addEventListener("click", (event) => {
-      addPlaceBtn.style.display = "none";
+    // Open the add place form
+    conformAddBtn.style.display = "block";
+    if (first) {
+      fillInStartTime.style.display = "block";
+    } else {
+      fillInDuration.style.display = "block";
+    }
+  });
 
-      // Determine if it is the first spot
-      let first = dailySchedule.length == 0;
+  // *****************************
+  // ADD PHASE
+  // *****************************
+  addPlaceForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
 
-      // Open the add place form
-      conformAddBtn.style.display = "block";
-      if (first) {
-        fillInStartTime.style.display = "block";
-      } else {
-        fillInDuration.style.display = "block";
-      }
-    });
+    // Add a new spot
+    dailySchedule.append(spotName, spotPos);
 
-    // *******
-    // ADD PHASE
-    // 重要：按下加入行程之後的四個動作
-    // 1. "加入行程"按鈕 -> "已加入"
-    // 2. 標示新加入的景點
-    // 3. 顯示上一個景點到新加入景點的路線
-    // 4. 在schedule生成新景點的板塊
-    // *******
-    addPlaceForm.addEventListener("submit", async function (event) {
-      event.preventDefault();
+    // Disaplay the newly add spot
+    dailySchedule.tail.newMark(map);
 
-      // Add a new spot
-      dailySchedule.append(spotName, spotPos);
+    if (dailySchedule.length >= 2) {
+      // Calculate the route
+      await dailySchedule.tail.prev.calRouteAndTrafficTime();
 
-      // Disaplay the newly add spot
-      dailySchedule.tail.newMark(map);
+      // Display the route
+      dailySchedule.tail.prev.displayRoute(map);
+    }
 
-      if (dailySchedule.length >= 2) {
-        // Calculate the route
-        await dailySchedule.tail.prev.calRouteAndTrafficTime();
+    // Generate the time schedule on the left
+    dailySchedule.tail.updateStartTime(addPlaceForm);
+    dailySchedule.tail.updateDuration(addPlaceForm);
+    dailySchedule.tail.updateEndTime(addPlaceForm);
+    dailySchedule.tail.addSchedulePlate();
 
-        // Display the route
-        dailySchedule.tail.prev.displayRoute(map);
-      }
+    // Close the add place form
+    conformAddBtn.style.display = "none";
+    fillInStartTime.style.display = "none";
+    fillInDuration.style.display = "none";
 
-      // Generate the time schedule on the left
-      dailySchedule.tail.updateStartTime(addPlaceForm);
-      dailySchedule.tail.updateDuration(addPlaceForm);
-      dailySchedule.tail.updateEndTime(addPlaceForm);
-      dailySchedule.tail.addSchedulePlate();
-
-      // Close the add place form
-      conformAddBtn.style.display = "none";
-      fillInStartTime.style.display = "none";
-      fillInDuration.style.display = "none";
-
-      // Finished
-      added.style.display = "block"; // 已加入
-    });
-  }
+    // Finished
+    added.style.display = "block"; // 已加入
+  });
 }
