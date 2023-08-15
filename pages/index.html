@@ -36,7 +36,12 @@
         <form class="init-form" action="">
           <div class="departure-date">
             <label for="departure-date">出發日期：</label>
-            <input id="departure-date" type="date" name="departure-date" />
+            <input
+              id="departure-date"
+              type="date"
+              name="departure-date"
+              required
+            />
           </div>
 
           <div class="trip-name">
@@ -146,11 +151,19 @@
           <form class="add-place-form" action="">
             <div class="fill-in-start-time" style="display: none">
               <label for="start-time">出發時間：</label>
-              <input id="start-time" type="time" timeformat="24h" />
+              <input id="start-time" type="time" timeformat="24h" required />
             </div>
             <div class="fill-in-duration" style="display: none">
               <p>停留時間：</p>
-              <input id="duration-hr" type="number" min="0" max="23" step="1" />
+              <input
+                id="duration-hr"
+                type="number"
+                min="0"
+                max="23"
+                step="1"
+                value="0"
+                required
+              />
               <label for="duration-hr">小時</label>
               <input
                 id="duration-min"
@@ -158,6 +171,8 @@
                 min="0"
                 max="59"
                 step="1"
+                value="0"
+                required
               />
               <label for="duration-min">分鐘 </label>
             </div>

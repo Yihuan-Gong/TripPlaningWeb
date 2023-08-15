@@ -190,8 +190,7 @@ class DailySchedule {
     }
   }
 
-  // NOTE: Add place form 不屬於任何一個TourSpot，所以由
-  // DailySchedule控制
+  // NOTE: Add place form 不屬於任何一個TourSpot，所以由DailySchedule控制
 
   openAddPlaceForm() {
     let conformAddBtn = this.addPlaceForm.querySelector(".conform-add");

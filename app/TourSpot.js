@@ -156,16 +156,6 @@ class TourSpot {
     }
 
     this.endTime = this.timeAddition(this.startTime, this.duration);
-
-    // let endTimeValue = this.startTime.value + this.duration.value;
-    // let endTimeText = this.timeValueToText(endTimeValue);
-
-    // this.endTime = {
-    //   value: endTimeValue,
-    //   text: endTimeText,
-    // };
-
-    console.log(this.endTime);
   }
 
   updateStartTime() {
