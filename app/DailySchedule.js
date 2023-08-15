@@ -4,11 +4,13 @@ class DailySchedule {
   head;
   tail;
   length;
+  addPlaceForm;
 
   constructor() {
     this.head = null;
     this.tail = null;
     this.length = 0;
+    this.addPlaceForm = document.querySelector(".add-place-form");
   }
 
   isEmpty() {
@@ -94,6 +96,58 @@ class DailySchedule {
       current.prev = null;
     }
     this.length -= 1;
+  }
+
+  async appendNewSpot(spotName, spotPos, map) {
+    // Add a new spot
+    this.append(spotName, spotPos);
+
+    // Disaplay the newly add spot
+    this.tail.newMark(map);
+
+    if (this.length >= 2) {
+      // Calculate the route
+      await this.tail.prev.calRouteAndTrafficTime();
+
+      // Display the route
+      this.tail.prev.displayRoute(map);
+    }
+
+    // Generate the time schedule on the left
+    this.tail.updateStartTime(this.addPlaceForm);
+    this.tail.updateDuration(this.addPlaceForm);
+    this.tail.updateEndTime(this.addPlaceForm);
+    this.tail.addSchedulePlate();
+  }
+
+  // NOTE: Add place form 不屬於任何一個TourSpot，所以由
+  // DailySchedule控制
+
+  openAddPlaceForm() {
+    let conformAddBtn = this.addPlaceForm.querySelector(".conform-add");
+    let fillInStartTime = this.addPlaceForm.querySelector(
+      ".fill-in-start-time"
+    );
+    let fillInDuration = this.addPlaceForm.querySelector(".fill-in-duration");
+
+    conformAddBtn.style.display = "block";
+    if (this.length === 0) {
+      fillInStartTime.style.display = "block";
+    } else {
+      fillInDuration.style.display = "block";
+    }
+  }
+
+  closeAddPlaceForm() {
+    let conformAddBtn = this.addPlaceForm.querySelector(".conform-add");
+    let fillInStartTime = this.addPlaceForm.querySelector(
+      ".fill-in-start-time"
+    );
+    let fillInDuration = this.addPlaceForm.querySelector(".fill-in-duration");
+
+    conformAddBtn.style.display = "none";
+    fillInStartTime.style.display = "none";
+    fillInDuration.style.display = "none";
   }
 }
 

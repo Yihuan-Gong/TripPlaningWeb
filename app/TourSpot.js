@@ -209,9 +209,30 @@ class TourSpot {
       </div>`;
     }
 
+    // Add remove buttom and drag buttom
+    schedulePlate.innerHTML += `<div class="remove-btn">
+      <i class="bi bi-trash"></i>
+    </div>
+
+    <div class="drag-btn">
+      <i class="bi bi-arrows-move"></i>
+    </div>`;
+
     dailyScheduleIndication.appendChild(schedulePlate);
     this.schedulePlat = schedulePlate;
+
+    // Add event listener to remove and drag buttom
+    // let removeBtn = schedulePlate.querySelector(".remove-btn");
+    // let dragBtn = schedulePlate.querySelector(".drag-btn");
+    // removeBtn.addEventListener("click", () => {
+    //   this.removeSchedulePlate();
+    // });
   }
+
+  // removeSchedulePlate() {
+  //   if (!this.schedulePlat) return;
+  //   this.schedulePlat.remove();
+  // }
 }
 
 export default TourSpot;

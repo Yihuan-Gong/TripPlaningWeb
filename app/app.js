@@ -124,57 +124,23 @@ function initMap() {
   // INFO WINDOW PHASE
   // *****************
   let addPlaceBtn = infowindowContent.querySelector("#add-place");
-  let added = infowindowContent.querySelector("#added");
-  let addPlaceForm = document.querySelector(".add-place-form");
-  let conformAddBtn = addPlaceForm.querySelector(".conform-add");
-  let fillInStartTime = addPlaceForm.querySelector(".fill-in-start-time");
-  let fillInDuration = addPlaceForm.querySelector(".fill-in-duration");
-
   addPlaceBtn.addEventListener("click", (event) => {
     addPlaceBtn.style.display = "none";
-
-    // Determine if it is the first spot
-    let first = dailySchedule.length == 0;
-
-    // Open the add place form
-    conformAddBtn.style.display = "block";
-    if (first) {
-      fillInStartTime.style.display = "block";
-    } else {
-      fillInDuration.style.display = "block";
-    }
+    dailySchedule.openAddPlaceForm();
   });
 
   // *****************************
   // ADD PHASE
   // *****************************
-  addPlaceForm.addEventListener("submit", async function (event) {
+  let addPlaceForm = document.querySelector(".add-place-form");
+  addPlaceForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    // Add a new spot
-    dailySchedule.append(spotName, spotPos);
-
-    // Disaplay the newly add spot
-    dailySchedule.tail.newMark(map);
-
-    if (dailySchedule.length >= 2) {
-      // Calculate the route
-      await dailySchedule.tail.prev.calRouteAndTrafficTime();
-
-      // Display the route
-      dailySchedule.tail.prev.displayRoute(map);
-    }
-
-    // Generate the time schedule on the left
-    dailySchedule.tail.updateStartTime(addPlaceForm);
-    dailySchedule.tail.updateDuration(addPlaceForm);
-    dailySchedule.tail.updateEndTime(addPlaceForm);
-    dailySchedule.tail.addSchedulePlate();
+    // Add new spot according to search result
+    dailySchedule.appendNewSpot(spotName, spotPos, map);
 
     // Close the add place form
-    conformAddBtn.style.display = "none";
-    fillInStartTime.style.display = "none";
-    fillInDuration.style.display = "none";
+    dailySchedule.closeAddPlaceForm();
 
     // Finished
     added.style.display = "block"; // 已加入
