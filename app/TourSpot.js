@@ -9,7 +9,7 @@ class TourSpot {
   cost;
   id; // id start from 1
   directionsService;
-  schedulePlat;
+  schedulePlate;
 
   // Link
   prev;
@@ -36,6 +36,10 @@ class TourSpot {
     this.mark.setPosition(this.pos);
   }
 
+  updateMarkId(newId) {
+    this.mark.setLabel(newId.toString());
+  }
+
   removeMark() {
     if (this.mark !== undefined) {
       this.mark.setVisible(false);
@@ -44,7 +48,7 @@ class TourSpot {
 
   calRouteAndTrafficTime() {
     // If the spot is the last spot of the schedule, skip calculation
-    if (this.next === null) {
+    if (this.next == null) {
       this.route = null;
       return;
     }
@@ -63,9 +67,12 @@ class TourSpot {
         this.route = response.routes[0].overview_path;
         this.trafficTime = response.routes[0].legs[0].duration;
 
+        // Convert trafficTime.value unit from sec to min
+        this.trafficTime.value = Math.round(this.trafficTime.value / 60);
+
         // trafficTime資料格式如下：
         // trafficTime.text = "7 分鐘"
-        // trafficTime.value = 402
+        // trafficTime.value = 7
 
         console.log(response);
       })
@@ -101,7 +108,13 @@ class TourSpot {
     }
   }
 
-  updateStartTime(addPlaceForm) {
+  // ****************************************************************************
+  // TIME FUNCTIONS
+  // Use setStartTime(), setDuration(), setEndTime() for FIRST TIME initialize
+  // the spot. Otherwise use updateStartTime(), updateEndTime()
+  // ****************************************************************************
+
+  setStartTime(addPlaceForm) {
     if (this.id === 1) {
       // Get the start time from the form
       let timeText = addPlaceForm.querySelector("#start-time").value; // string
@@ -113,14 +126,10 @@ class TourSpot {
       return;
     }
 
-    // Should be this.prev.endTime + this.prev.trafficTime
-    // But let's do some simpification for now
-    this.startTime = this.prev.endTime;
-
-    console.log(this.startTime);
+    this.updateStartTime();
   }
 
-  updateDuration(addPlaceForm) {
+  setDuration(addPlaceForm) {
     if (this.id === 1) {
       this.duration = {
         value: 0,
@@ -140,21 +149,46 @@ class TourSpot {
     console.log(this.duration);
   }
 
-  updateEndTime(addPlaceForm) {
+  setEndTime() {
     if (this.id === 1) {
       this.endTime = this.startTime;
       return;
     }
 
-    let endTimeValue = this.startTime.value + this.duration.value;
-    let endTimeText = this.timeValueToText(endTimeValue);
+    this.endTime = this.timeAddition(this.startTime, this.duration);
 
-    this.endTime = {
-      value: endTimeValue,
-      text: endTimeText,
-    };
+    // let endTimeValue = this.startTime.value + this.duration.value;
+    // let endTimeText = this.timeValueToText(endTimeValue);
+
+    // this.endTime = {
+    //   value: endTimeValue,
+    //   text: endTimeText,
+    // };
 
     console.log(this.endTime);
+  }
+
+  updateStartTime() {
+    if (this.prev == null) return;
+    this.startTime = this.timeAddition(
+      this.prev.endTime,
+      this.prev.trafficTime
+    );
+  }
+
+  updateEndTime() {
+    if (this.startTime == null || this.duration == null) return;
+    this.endTime = this.timeAddition(this.startTime, this.duration);
+  }
+
+  timeAddition(time1, time2) {
+    let resultTimeValue = time1.value + time2.value;
+    let resultTimeText = this.timeValueToText(resultTimeValue);
+
+    return {
+      value: resultTimeValue,
+      text: resultTimeText,
+    };
   }
 
   timeTextToValue(timeText) {
@@ -219,20 +253,26 @@ class TourSpot {
     </div>`;
 
     dailyScheduleIndication.appendChild(schedulePlate);
-    this.schedulePlat = schedulePlate;
-
-    // Add event listener to remove and drag buttom
-    // let removeBtn = schedulePlate.querySelector(".remove-btn");
-    // let dragBtn = schedulePlate.querySelector(".drag-btn");
-    // removeBtn.addEventListener("click", () => {
-    //   this.removeSchedulePlate();
-    // });
+    this.schedulePlate = schedulePlate;
   }
 
-  // removeSchedulePlate() {
-  //   if (!this.schedulePlat) return;
-  //   this.schedulePlat.remove();
-  // }
+  removeSchedulePlate() {
+    if (!this.schedulePlate) return;
+    this.schedulePlate.remove();
+  }
+
+  updateSchedulePlate() {
+    if (this.id === 1) {
+      const startTimeHTML =
+        this.schedulePlate.querySelector(".start-or-end-time");
+      startTimeHTML.innerHTML = `${this.startTime.text}`;
+    }
+
+    const startTimeHTML = this.schedulePlate.querySelector(".start-time");
+    const endTimeHTML = this.schedulePlate.querySelector(".end-time");
+    startTimeHTML.innerHTML = `${this.startTime.text}`;
+    endTimeHTML.innerHTML = `${this.endTime.text}`;
+  }
 }
 
 export default TourSpot;

@@ -81,43 +81,113 @@ class DailySchedule {
 
     let current = this.getNode(index);
 
-    // Remove the mark
-    current.mark.removeMark();
-
     if (current === this.head) {
-      // Remove the head node
       this.head = this.head.next;
       this.head.prev = null;
       current.next = null;
+      this.length -= 1;
+    } else if (current === this.tail) {
+      this.pop();
     } else {
       current.prev.next = current.next;
       current.next.prev = current.prev;
       current.next = null;
       current.prev = null;
+      this.length -= 1;
     }
-    this.length -= 1;
   }
 
   async appendNewSpot(spotName, spotPos, map) {
-    // Add a new spot
+    // Create a new spot at the end
     this.append(spotName, spotPos);
 
-    // Disaplay the newly add spot
-    this.tail.newMark(map);
+    // Set current as the spot just created
+    const current = this.tail;
+    const prev = this.tail.prev;
 
+    // Disaplay the newly add spot
+    current.newMark(map);
+
+    // Calculate and display the route
     if (this.length >= 2) {
       // Calculate the route
-      await this.tail.prev.calRouteAndTrafficTime();
+      await prev.calRouteAndTrafficTime();
 
       // Display the route
-      this.tail.prev.displayRoute(map);
+      prev.displayRoute(map);
     }
 
     // Generate the time schedule on the left
-    this.tail.updateStartTime(this.addPlaceForm);
-    this.tail.updateDuration(this.addPlaceForm);
-    this.tail.updateEndTime(this.addPlaceForm);
-    this.tail.addSchedulePlate();
+    current.setStartTime(this.addPlaceForm);
+    current.setDuration(this.addPlaceForm);
+    current.setEndTime();
+    current.addSchedulePlate();
+
+    // Make the remove buttom work on the schedule plate
+    const removeBtn = current.schedulePlate.querySelector(".remove-btn");
+    removeBtn.addEventListener("click", () => {
+      this.removeSpot(current.id, map);
+    });
+  }
+
+  async removeSpot(index, map) {
+    const current = this.getNode(index);
+    const prev = current.prev;
+
+    // Remove the schedule plate
+    current.removeSchedulePlate();
+
+    // Remove the mark
+    current.removeMark();
+
+    // Undisplay the route
+    current.undisplayRoute();
+    prev.undisplayRoute();
+    console.log("undisplayRoute() finished");
+
+    // Remove the wanted spot from the memory
+    this.remove(current.id);
+    console.log("remove() finished");
+
+    // Recalculate id and update to the map indication
+    this.recalculateIdAndUpdateToMap();
+    console.log("recalculateIdAndUpdateToMap() finished");
+
+    if (prev.next != null) {
+      // Recalculate the route
+      await prev.calRouteAndTrafficTime();
+
+      // Redisplay the route
+      prev.displayRoute(map);
+
+      // Update the start time and end time
+      prev.next.updateStartTime();
+      prev.next.updateEndTime();
+
+      // Update the schedule plate accordingly
+      prev.next.updateSchedulePlate();
+    }
+  }
+
+  recalculateIdAndUpdateToMap() {
+    let id = 1;
+    console.log("In recalculateIdAndUpdateToMap()");
+
+    this.traverseAll((current) => {
+      console.log(`id = ${id}`);
+      console.log(`Spot name = ${current.name}`);
+      current.id = id;
+      current.updateMarkId(id);
+      id += 1;
+    });
+  }
+
+  traverseAll(callbackFn) {
+    let current = this.head;
+    while (current) {
+      callbackFn(current);
+      current = current.next;
+    }
   }
 
   // NOTE: Add place form 不屬於任何一個TourSpot，所以由
