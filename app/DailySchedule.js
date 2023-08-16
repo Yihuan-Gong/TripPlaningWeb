@@ -136,6 +136,17 @@ class DailySchedule {
 
   async removeSpot(index, map) {
     const current = this.getNode(index);
+
+    if (current == null) return;
+    if (current === this.head) {
+      window.alert("不可以刪除起點站！");
+      return;
+    }
+
+    // Definition:
+    // current: Curent spot
+    // current.prev: Also called PREV, one step behine current spot
+    // current.next: Also called NEXT, one step ahead of current spot
     const prev = current.prev;
 
     // Remove the schedule plate
