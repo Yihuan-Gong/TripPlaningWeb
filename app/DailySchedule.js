@@ -105,23 +105,27 @@ class DailySchedule {
     const current = this.tail;
     const prev = this.tail.prev;
 
-    // Disaplay the newly add spot
-    current.newMark(map);
-
-    // Calculate and display the route
+    // Route and traffic time calculation from  PREVIOUS SPOT
     if (this.length >= 2) {
       // Calculate the route
       await prev.calRouteAndTrafficTime();
 
       // Display the route
       prev.displayRoute(map);
+
+      // Display the traffic time
+      prev.createTrafficTimePlate();
     }
+
+    // Disaplay the newly add spot
+    current.newMark(map);
 
     // Generate the time schedule on the left
     current.setStartTime(this.addPlaceForm);
     current.setDuration(this.addPlaceForm);
     current.setEndTime();
-    current.addSchedulePlate();
+    current.createSchedulePlate();
+    current.createTimeAndSpotPlate();
 
     // Make the remove buttom work on the schedule plate
     const removeBtn = current.schedulePlate.querySelector(".remove-btn");
@@ -153,6 +157,8 @@ class DailySchedule {
     this.recalculateIdAndUpdateToMap();
     console.log("recalculateIdAndUpdateToMap() finished");
 
+    //  PREV: Recalculate route and traffic time
+    //  NEXT: Recalcultat start time and end time
     if (prev.next != null) {
       // Recalculate the route
       await prev.calRouteAndTrafficTime();
@@ -160,12 +166,17 @@ class DailySchedule {
       // Redisplay the route
       prev.displayRoute(map);
 
+      // Update the traffic time indication
+      prev.updateTrafficTimePlate();
+
       // Update the start time and end time
       prev.next.updateStartTime();
       prev.next.updateEndTime();
 
       // Update the schedule plate accordingly
-      prev.next.updateSchedulePlate();
+      prev.next.updateTimeAndSpotPlate();
+    } else {
+      prev.removeTrafficTimePlate();
     }
   }
 

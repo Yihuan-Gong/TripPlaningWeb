@@ -8,8 +8,8 @@ class TourSpot {
   duration; // {int value (mins), string text (h時mm分)}
   cost;
   id; // id start from 1
-  directionsService;
   schedulePlate;
+  directionsService;
 
   // Link
   prev;
@@ -65,7 +65,10 @@ class TourSpot {
       .then((response) => {
         // 將route從response裡面讀出來
         this.route = response.routes[0].overview_path;
-        this.trafficTime = response.routes[0].legs[0].duration;
+        this.trafficTime = Object.assign(
+          {},
+          response.routes[0].legs[0].duration
+        );
 
         // Convert trafficTime.value unit from sec to min
         this.trafficTime.value = Math.round(this.trafficTime.value / 60);
@@ -199,16 +202,35 @@ class TourSpot {
     }
   }
 
-  addSchedulePlate() {
-    // TourSpot newSpot
-    let dailyScheduleIndication = document.querySelector("div.daily-schedule");
-    let schedulePlate = document.createElement("div");
-    schedulePlate.classList.add("time-and-tourist-spot");
+  // ****************************************
+  // HTML Indication functions
+  // ***************************************
+
+  createSchedulePlate() {
+    const dailyScheduleIndication =
+      document.querySelector("div.daily-schedule");
+    const schedulePlate = document.createElement("div");
+
+    schedulePlate.classList.add("schedule-plate");
     schedulePlate.classList.add(`id-${this.id}`);
 
+    dailyScheduleIndication.appendChild(schedulePlate);
+    this.schedulePlate = schedulePlate;
+  }
+
+  removeSchedulePlate() {
+    if (!this.schedulePlate) return;
+    this.schedulePlate.remove();
+  }
+
+  createTimeAndSpotPlate() {
+    // TourSpot newSpot
+    const timeAndSpotPlate = document.createElement("div");
+    timeAndSpotPlate.classList.add("time-and-tourist-spot");
+
     if (this.id === 1) {
-      schedulePlate.classList.add("start-or-end");
-      schedulePlate.innerHTML = `<img class="place" src="../icon/place2.png" alt="place-marker" />
+      timeAndSpotPlate.classList.add("start-or-end");
+      timeAndSpotPlate.innerHTML = `<img class="place" src="../icon/place2.png" alt="place-marker" />
       <div class="time">
         <p class="start-or-end-time">${this.startTime.text}</p>
         <p class="action">出發</p>
@@ -218,8 +240,8 @@ class TourSpot {
         <p class="spot">${this.name}</p>
       </div>`;
     } else {
-      schedulePlate.classList.add("traveling");
-      schedulePlate.innerHTML = `<img class="place" src="../icon/place2.png" alt="place-marker" />
+      timeAndSpotPlate.classList.add("traveling");
+      timeAndSpotPlate.innerHTML = `<img class="place" src="../icon/place2.png" alt="place-marker" />
       <div class="time">
         <p class="start-time">${this.startTime.text}</p>
         <p class="to">-</p>
@@ -234,7 +256,7 @@ class TourSpot {
     }
 
     // Add remove buttom and drag buttom
-    schedulePlate.innerHTML += `<div class="remove-btn">
+    timeAndSpotPlate.innerHTML += `<div class="remove-btn">
       <i class="bi bi-trash"></i>
     </div>
 
@@ -242,16 +264,18 @@ class TourSpot {
       <i class="bi bi-arrows-move"></i>
     </div>`;
 
-    dailyScheduleIndication.appendChild(schedulePlate);
-    this.schedulePlate = schedulePlate;
+    this.schedulePlate.appendChild(timeAndSpotPlate);
   }
 
-  removeSchedulePlate() {
-    if (!this.schedulePlate) return;
-    this.schedulePlate.remove();
+  removeTimeAndSpotPlate() {
+    const timeAndSpotPlate = this.schedulePlate.querySelector(
+      "time-and-tourist-spot"
+    );
+    if (!timeAndSpotPlate) return;
+    timeAndSpotPlate.remove();
   }
 
-  updateSchedulePlate() {
+  updateTimeAndSpotPlate() {
     if (this.id === 1) {
       const startTimeHTML =
         this.schedulePlate.querySelector(".start-or-end-time");
@@ -262,6 +286,34 @@ class TourSpot {
     const endTimeHTML = this.schedulePlate.querySelector(".end-time");
     startTimeHTML.innerHTML = `${this.startTime.text}`;
     endTimeHTML.innerHTML = `${this.endTime.text}`;
+  }
+
+  createTrafficTimePlate() {
+    const trafficTimeDisplay = document.createElement("div");
+    trafficTimeDisplay.classList.add("traffic-time");
+    trafficTimeDisplay.classList.add(`id-${this.id}`);
+
+    trafficTimeDisplay.innerHTML = `<i class="bi bi-car-front-fill"></i>
+    <p>${this.trafficTime.text}</p>`;
+
+    this.schedulePlate.appendChild(trafficTimeDisplay);
+  }
+
+  removeTrafficTimePlate() {
+    const trafficTimeDisplay =
+      this.schedulePlate.querySelector(".traffic-time");
+    if (!trafficTimeDisplay) return;
+    trafficTimeDisplay.remove();
+  }
+
+  updateTrafficTimePlate() {
+    const trafficTimeDisplay =
+      this.schedulePlate.querySelector(".traffic-time");
+    if (!trafficTimeDisplay) return;
+
+    const trafficTimeHTML = trafficTimeDisplay.querySelector("p");
+    console.log(trafficTimeDisplay);
+    trafficTimeHTML.innerHTML = `${this.trafficTime.text}`;
   }
 }
 
